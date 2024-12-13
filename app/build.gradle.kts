@@ -55,7 +55,7 @@ dependencies {
     implementation ("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.7")
     
     // Notificaciones
-    implementation("androidx.core:core-ktx:2.2.0")
+    //implementation("androidx.core:core-ktx:2.2.0")
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
