@@ -19,5 +19,5 @@ interface PrioridadDao {
     suspend fun delete(prioridad: Prioridad)
 
     @Query("SELECT * FROM Prioridades")
-    suspend fun getAllPrioridades(): Flow<List<Prioridad>>
+    fun getAllPrioridades(): Flow<List<Prioridad>>
 }
