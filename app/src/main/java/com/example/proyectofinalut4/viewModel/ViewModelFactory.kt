@@ -7,8 +7,8 @@ import com.example.proyectofinalut4.data.TipoTareaDao
 
 class ViewModelFactory(private val tareaDao: TareaDao, private val tipoTareaDao: TipoTareaDao) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(ViewModel::class.java)) {
-            return ViewModel(tareaDao, tipoTareaDao) as T
+        if (modelClass.isAssignableFrom(MyViewModel::class.java)) {
+            return MyViewModel(tareaDao, tipoTareaDao) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }
