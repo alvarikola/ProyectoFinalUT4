@@ -196,38 +196,38 @@ fun FormularioTipos(myViewModel: MyViewModel) {
     }
 }
 
-//@Composable
-//fun FormularioTareas(myViewModel: MyViewModel) {
-//    val newTituloTarea by myViewModel.newTituloTarea.collectAsState()
-//    val newDescription by myViewModel.newDescription.collectAsState()
-//    val tipoSeleccionado by myViewModel.tipoSeleccionado.collectAsState()
-//
-//
-//    Column(modifier = Modifier.fillMaxWidth()) {
-//        OutlinedTextField(
-//            value = newTituloTarea,
-//            onValueChange = { myViewModel.newTituloTarea.value = it },
-//            label = { Text("Nueva Tarea") },
-//            modifier = Modifier.fillMaxWidth()
-//        )
-//
-//        OutlinedTextField(
-//            value = newDescription,
-//            onValueChange = { myViewModel.newDescription.value = it },
-//            label = { Text("Descripción") },
-//            modifier = Modifier.fillMaxWidth()
-//        )
-//
-//        Button(
-//            onClick = {
-//                myViewModel.agregarTarea()
-//            },
-//            modifier = Modifier.padding(8.dp)
-//        ) {
-//            Text("Añadir tarea")
-//        }
-//    }
-//}
+@Composable
+fun FormularioTareas(myViewModel: MyViewModel) {
+    val newTituloTarea by myViewModel.newTituloTarea.collectAsState()
+    val newDescription by myViewModel.newDescription.collectAsState()
+    val tipoSeleccionado by myViewModel.tipoSeleccionado.collectAsState()
+
+
+    Column(modifier = Modifier.fillMaxWidth()) {
+        OutlinedTextField(
+            value = newTituloTarea,
+            onValueChange = { myViewModel.newTituloTarea.value = it },
+            label = { Text("Nueva Tarea") },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        OutlinedTextField(
+            value = newDescription,
+            onValueChange = { myViewModel.newDescription.value = it },
+            label = { Text("Descripción") },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Button(
+            onClick = {
+                myViewModel.agregarTarea()
+            },
+            modifier = Modifier.padding(8.dp)
+        ) {
+            Text("Añadir tarea")
+        }
+    }
+}
 
 //@Composable
 //fun ListaTareas(viewModel: ViewModel) {
