@@ -210,12 +210,14 @@ fun FormularioTareas(myViewModel: MyViewModel) {
     val newTituloTarea by myViewModel.newTituloTarea.collectAsState()
     val newDescription by myViewModel.newDescription.collectAsState()
     val tipoSeleccionado by myViewModel.tipoSeleccionado.collectAsState()
+    val prioridadSeleccionada by myViewModel.prioridadSeleccionada.collectAsState()
 
     // Estados locales para manejar la visibilidad del DropdownMenu
     var expandedDesplegable by remember { mutableStateOf(false) }
 
     // Lista de tipos de tarea desde el ViewModel
     val tiposList by myViewModel.tiposList.collectAsState()
+    val prioridadesList by myViewModel.prioridadesList.collectAsState()
 
     // Campos para seleccionar el tipo de tarea
     var tipoSeleccionadoLocal by remember { mutableStateOf("") }
@@ -277,6 +279,45 @@ fun FormularioTareas(myViewModel: MyViewModel) {
         }
     }
 
+    // Fila para seleccionar la prioridad de tarea
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        OutlinedTextField(
+            value = prioridadSeleccionada?.tituloPrioridad ?: "", // Mostrar una cadena vacía si es nulo
+            onValueChange = {},
+            readOnly = true,
+            label = { Text("Prioridad") },
+            modifier = Modifier
+                .weight(1f)
+                .padding(end = 5.dp)
+        )
+        TextButton(
+            onClick = { expandedDesplegable = true }
+        ) {
+            Text("Seleccionar prioridad")
+        }
+    }
+
+    // Dropdown para seleccionar la prioridad de tarea
+    DropdownMenu(
+        expanded = expandedDesplegable,
+        onDismissRequest = { expandedDesplegable = false }
+    ) {
+        prioridadesList.forEach { prioridad ->
+            DropdownMenuItem(
+                text = { Text(prioridad.tituloPrioridad) },
+                onClick = {
+                    tipoSeleccionadoLocal = prioridad.tituloPrioridad
+                    idTipoSeleccionadoLocal = prioridad.idPrioridad
+                    expandedDesplegable = false
+
+                    // Actualizar el estado en el ViewModel
+                    myViewModel.prioridadSeleccionada.value = prioridad
+                }
+            )
+        }
+    }
+
+
     // Botón para añadir tarea
     Button(
         onClick = {
@@ -285,6 +326,7 @@ fun FormularioTareas(myViewModel: MyViewModel) {
             myViewModel.newTituloTarea.value = ""
             myViewModel.newDescription.value = ""
             myViewModel.tipoSeleccionado.value = null
+            myViewModel.prioridadSeleccionada.value = null
         },
         modifier = Modifier.padding(8.dp)
     ) {
