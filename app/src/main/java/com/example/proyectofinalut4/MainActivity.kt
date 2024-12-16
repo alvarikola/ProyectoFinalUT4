@@ -115,19 +115,23 @@ class MainActivity : ComponentActivity() {
     // Método para mostrar la notificación
     fun showNotification(context: android.content.Context, tarea: Tarea) {
         var icono = R.drawable.ic_launcher_background
+        var texto = "La tarea '${tarea.tituloTarea}' ha sido añadida"
         if (tarea.idPrioridadOwner == 1) {
             icono = R.drawable.prioridadbaja
+            texto = "La tarea '${tarea.tituloTarea}' ha sido añadida con poca prioridad."
         }
         if (tarea.idPrioridadOwner == 2) {
             icono = R.drawable.prioridadmedia
+            texto = "La tarea '${tarea.tituloTarea}' ha sido añadida con prioridad media."
         }
         if (tarea.idPrioridadOwner == 3){
             icono = R.drawable.prioridadalta
+            texto = "La tarea '${tarea.tituloTarea}' ha sido añadida con alta prioridad."
         }
         val builder = NotificationCompat.Builder(context, "tarea_channel")
             .setSmallIcon(icono)
             .setContentTitle("Tarea añadida")
-            .setContentText("La tarea '${tarea.tituloTarea}' ha sido añadida.")
+            .setContentText(texto)
             .setPriority(PRIORITY_DEFAULT)
 
         with(NotificationManagerCompat.from(context)) {
