@@ -9,5 +9,5 @@ data class TareasWithTipo(
         parentColumn = "idTipoTareaOwner",
         entityColumn = "idTipoTarea"
     )
-    val tiposTareas: List<TipoTarea>
+    val tiposTareas: TipoTarea
 )
