@@ -566,7 +566,7 @@ fun ListaTareas(myViewModel: MyViewModel) {
 @Composable
 fun TareaApp(modifier: Modifier = Modifier, myViewModel: MyViewModel) {
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-        Text("Gestor de tareas")
+        Text("Gestor de tareas", fontWeight = FontWeight.Bold, fontSize = 30.sp)
 
         FormularioTipos(myViewModel)
         FormularioTareas(myViewModel)
