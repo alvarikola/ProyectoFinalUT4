@@ -33,7 +33,7 @@ class MyViewModel(private val tareaDao: TareaDao, private val tipoTareaDao: Tipo
     }
 
     // Obtener la lista de tipos
-    private fun obtenerTipos() {
+    fun obtenerTipos() {
         viewModelScope.launch(Dispatchers.IO) {
             val tipos = tipoTareaDao.getAllTipos()
             _tiposList.emit(tipos) // Actualizar el flujo con la nueva lista
@@ -41,7 +41,7 @@ class MyViewModel(private val tareaDao: TareaDao, private val tipoTareaDao: Tipo
     }
 
     // Obtener la lista de tareas con sus tipos
-    private fun obtenerTareas() {
+    fun obtenerTareas() {
         viewModelScope.launch(Dispatchers.IO) {
             val tareas = tareaDao.getAllTareasAndTipos()
             _tareasList.emit(tareas) // Actualizar el flujo con la nueva lista
