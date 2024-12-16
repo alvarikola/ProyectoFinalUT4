@@ -85,4 +85,50 @@ class MyViewModel(private val tareaDao: TareaDao, private val tipoTareaDao: Tipo
     }
 
 
+    // Crear una nueva tarea
+    fun agregarTarea() {
+        val titulo = newTituloTarea.value
+        val descripcion = newDescription.value
+        val tipoId = tipoSeleccionado.value?.idTipoTarea ?: 0
+
+        if (titulo.isNotEmpty() && tipoId != 0) {
+            viewModelScope.launch(Dispatchers.IO) {
+                // Crear la nueva tarea
+                val nuevaTarea = Tarea(
+                    tituloTarea = titulo,
+                    descripcionTarea = if (descripcion.isEmpty()) null else descripcion,
+                    idTipoTareaOwner = tipoId,
+                    idPrioridadOwner = 1 // Aquí asignamos una prioridad, en este caso como ejemplo.
+                )
+
+                // Insertar la nueva tarea en la base de datos
+                tareaDao.insertTarea(nuevaTarea)
+
+                // Limpiar los campos de entrada
+                newTituloTarea.value = ""
+                newDescription.value = ""
+                tipoSeleccionado.value = null
+
+                // Actualizar la lista de tareas
+                obtenerTareas()
+            }
+        }
+    }
+
+    // Actualizar una tarea existente
+    fun actualizarTarea(tarea: Tarea) {
+        viewModelScope.launch(Dispatchers.IO) {
+            tareaDao.update(tarea) // Actualiza la tarea en la base de datos
+            obtenerTareas() // Refrescar la lista de tareas
+        }
+    }
+
+    // Eliminar una tarea existente
+    fun borrarTarea(tarea: Tarea) {
+        viewModelScope.launch(Dispatchers.IO) {
+            tareaDao.delete(tarea) // Elimina la tarea de la base de datos
+            obtenerTareas() // Refrescar la lista de tareas
+        }
+    }
+
 }
