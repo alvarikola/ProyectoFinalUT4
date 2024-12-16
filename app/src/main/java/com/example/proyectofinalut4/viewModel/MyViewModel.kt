@@ -2,6 +2,8 @@ package com.example.proyectofinalut4.viewModel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.proyectofinalut4.data.Prioridad
+import com.example.proyectofinalut4.data.PrioridadDao
 import com.example.proyectofinalut4.data.Tarea
 import com.example.proyectofinalut4.data.TareaDao
 import com.example.proyectofinalut4.data.TipoTarea
@@ -12,7 +14,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class MyViewModel(private val tareaDao: TareaDao, private val tipoTareaDao: TipoTareaDao) : ViewModel() {
+class MyViewModel(private val tareaDao: TareaDao, private val tipoTareaDao: TipoTareaDao, private val prioridadDao: PrioridadDao) : ViewModel() {
 
     // Estado observable con StateFlow
     private val _tiposList = MutableStateFlow<List<TipoTarea>>(emptyList())
@@ -20,6 +22,9 @@ class MyViewModel(private val tareaDao: TareaDao, private val tipoTareaDao: Tipo
 
     private val _tareasList = MutableStateFlow<List<TareasWithTipo>>(emptyList())
     val tareasList: StateFlow<List<TareasWithTipo>> get() = _tareasList
+
+    private val _prioridadesList = MutableStateFlow<List<Prioridad>>(emptyList())
+    val prioridadesList: StateFlow<List<Prioridad>> get() = _prioridadesList
 
     val newTituloTipo = MutableStateFlow("")
 
@@ -45,6 +50,13 @@ class MyViewModel(private val tareaDao: TareaDao, private val tipoTareaDao: Tipo
         viewModelScope.launch(Dispatchers.IO) {
             val tareas = tareaDao.getAllTareasAndTipos()
             _tareasList.emit(tareas) // Actualizar el flujo con la nueva lista
+        }
+    }
+
+    fun obtenerPrioridades() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val prioridades = prioridadDao.getAllPrioridades()
+            _tareasList.emit(prioridades) // Actualizar el flujo con la nueva lista
         }
     }
 
