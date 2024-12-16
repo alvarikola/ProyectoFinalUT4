@@ -34,7 +34,7 @@ fun FormularioTipos(myViewModel: MyViewModel) {
     // Estados locales para seleccionar un tipo
     var tipoSeleccionado by remember { mutableStateOf("") }
     var idTipoSeleccionado by remember { mutableStateOf(0) }
-    var expandedDesplegable by remember { mutableStateOf(false) }
+    var expandedDesplegableTipo by remember { mutableStateOf(false) }
 
     OutlinedTextField(
         value = newTituloTipo,
@@ -88,15 +88,15 @@ fun FormularioTipos(myViewModel: MyViewModel) {
                                     .padding(end = 5.dp)
                             )
                             TextButton(
-                                onClick = { expandedDesplegable = true }
+                                onClick = { expandedDesplegableTipo = true }
                             ) {
                                 Text("Seleccionar tipo")
                             }
                         }
 
                         DropdownMenu(
-                            expanded = expandedDesplegable,
-                            onDismissRequest = { expandedDesplegable = false }
+                            expanded = expandedDesplegableTipo,
+                            onDismissRequest = { expandedDesplegableTipo = false }
                         ) {
                             tiposList.forEach { tipo ->
                                 DropdownMenuItem(
@@ -104,7 +104,7 @@ fun FormularioTipos(myViewModel: MyViewModel) {
                                     onClick = {
                                         idTipoSeleccionado = tipo.idTipoTarea
                                         tipoSeleccionado = tipo.tituloTipoTarea
-                                        expandedDesplegable = false
+                                        expandedDesplegableTipo = false
                                     }
                                 )
                             }
@@ -159,15 +159,15 @@ fun FormularioTipos(myViewModel: MyViewModel) {
                                     .padding(end = 5.dp)
                             )
                             TextButton(
-                                onClick = { expandedDesplegable = true }
+                                onClick = { expandedDesplegableTipo = true }
                             ) {
                                 Text("Seleccionar tipo")
                             }
                         }
 
                         DropdownMenu(
-                            expanded = expandedDesplegable,
-                            onDismissRequest = { expandedDesplegable = false }
+                            expanded = expandedDesplegableTipo,
+                            onDismissRequest = { expandedDesplegableTipo = false }
                         ) {
                             tiposList.forEach { tipo ->
                                 DropdownMenuItem(
@@ -175,7 +175,7 @@ fun FormularioTipos(myViewModel: MyViewModel) {
                                     onClick = {
                                         idTipoSeleccionado = tipo.idTipoTarea
                                         tipoSeleccionado = tipo.tituloTipoTarea
-                                        expandedDesplegable = false
+                                        expandedDesplegableTipo = false
                                     }
                                 )
                             }
@@ -213,7 +213,8 @@ fun FormularioTareas(myViewModel: MyViewModel) {
     val prioridadSeleccionada by myViewModel.prioridadSeleccionada.collectAsState()
 
     // Estados locales para manejar la visibilidad del DropdownMenu
-    var expandedDesplegable by remember { mutableStateOf(false) }
+    var expandedDesplegableTipo by remember { mutableStateOf(false) }
+    var expandedDesplegablePrio by remember { mutableStateOf(false) }
 
     // Lista de tipos de tarea desde el ViewModel
     val tiposList by myViewModel.tiposList.collectAsState()
@@ -222,6 +223,9 @@ fun FormularioTareas(myViewModel: MyViewModel) {
     // Campos para seleccionar el tipo de tarea
     var tipoSeleccionadoLocal by remember { mutableStateOf("") }
     var idTipoSeleccionadoLocal by remember { mutableStateOf(0) }
+
+    var prioridadSeleccionadaLocal by remember { mutableStateOf("") }
+    var idPrioridadSeleccionadaLocal by remember { mutableStateOf(0) }
 
     Column(modifier = Modifier.fillMaxWidth()) {
         // Campo para el título de la tarea
@@ -252,7 +256,7 @@ fun FormularioTareas(myViewModel: MyViewModel) {
                     .padding(end = 5.dp)
             )
             TextButton(
-                onClick = { expandedDesplegable = true }
+                onClick = { expandedDesplegableTipo = true }
             ) {
                 Text("Seleccionar tipo")
             }
@@ -260,8 +264,8 @@ fun FormularioTareas(myViewModel: MyViewModel) {
 
         // Dropdown para seleccionar el tipo de tarea
         DropdownMenu(
-            expanded = expandedDesplegable,
-            onDismissRequest = { expandedDesplegable = false }
+            expanded = expandedDesplegableTipo,
+            onDismissRequest = { expandedDesplegableTipo = false }
         ) {
             tiposList.forEach { tipo ->
                 DropdownMenuItem(
@@ -269,7 +273,7 @@ fun FormularioTareas(myViewModel: MyViewModel) {
                     onClick = {
                         tipoSeleccionadoLocal = tipo.tituloTipoTarea
                         idTipoSeleccionadoLocal = tipo.idTipoTarea
-                        expandedDesplegable = false
+                        expandedDesplegableTipo = false
 
                         // Actualizar el estado en el ViewModel
                         myViewModel.tipoSeleccionado.value = tipo
@@ -291,7 +295,7 @@ fun FormularioTareas(myViewModel: MyViewModel) {
                 .padding(end = 5.dp)
         )
         TextButton(
-            onClick = { expandedDesplegable = true }
+            onClick = { expandedDesplegablePrio = true }
         ) {
             Text("Seleccionar prioridad")
         }
@@ -299,16 +303,16 @@ fun FormularioTareas(myViewModel: MyViewModel) {
 
     // Dropdown para seleccionar la prioridad de tarea
     DropdownMenu(
-        expanded = expandedDesplegable,
-        onDismissRequest = { expandedDesplegable = false }
+        expanded = expandedDesplegablePrio,
+        onDismissRequest = { expandedDesplegablePrio = false }
     ) {
         prioridadesList.forEach { prioridad ->
             DropdownMenuItem(
                 text = { Text(prioridad.tituloPrioridad) },
                 onClick = {
-                    tipoSeleccionadoLocal = prioridad.tituloPrioridad
-                    idTipoSeleccionadoLocal = prioridad.idPrioridad
-                    expandedDesplegable = false
+                    prioridadSeleccionadaLocal = prioridad.tituloPrioridad
+                    idPrioridadSeleccionadaLocal = prioridad.idPrioridad
+                    expandedDesplegablePrio = false
 
                     // Actualizar el estado en el ViewModel
                     myViewModel.prioridadSeleccionada.value = prioridad
@@ -337,20 +341,30 @@ fun FormularioTareas(myViewModel: MyViewModel) {
 
 @Composable
 fun ListaTareas(myViewModel: MyViewModel) {
+
     // Observamos los flujos del ViewModel
     val tareasWithTipo by myViewModel.tareasList.collectAsState()
     val tiposList by myViewModel.tiposList.collectAsState()
+    val prioridadesList by myViewModel.prioridadesList.collectAsState()
+
 
     // Estados para gestionar el diálogo y la selección actual
     var mostrarDialogoEditar by remember { mutableStateOf(false) }
-    var expandedDesplegable by remember { mutableStateOf(false) }
+    var expandedDesplegableTipo by remember { mutableStateOf(false) }
+    var expandedDesplegablePrio by remember { mutableStateOf(false) }
 
     // Estados para editar la tarea seleccionada
     var newTareaName by remember { mutableStateOf("") }
     var newDescription by remember { mutableStateOf<String?>("") }
     var newTipoTarea by remember { mutableStateOf(0) }
+    var newPrioridadTarea by remember { mutableStateOf(0) }
+
     var tipoSeleccionado by remember { mutableStateOf("") }
     var idTareaSeleccionada by remember { mutableStateOf(0) }
+
+    var prioridadSeleccionada by remember { mutableStateOf("") }
+    val idPrioridadSeleccionada by remember { mutableStateOf(0) }
+
 
     Column(
         modifier = Modifier
@@ -440,15 +454,15 @@ fun ListaTareas(myViewModel: MyViewModel) {
                                 label = { Text("Tipo") },
                                 modifier = Modifier.weight(1f).padding(end = 5.dp)
                             )
-                            TextButton(onClick = { expandedDesplegable = true }) {
+                            TextButton(onClick = { expandedDesplegableTipo = true }) {
                                 Text("Seleccionar tipo")
                             }
                         }
 
                         // Menú desplegable para seleccionar tipo
                         DropdownMenu(
-                            expanded = expandedDesplegable,
-                            onDismissRequest = { expandedDesplegable = false }
+                            expanded = expandedDesplegableTipo,
+                            onDismissRequest = { expandedDesplegableTipo = false }
                         ) {
                             tiposList.forEach { tipo ->
                                 DropdownMenuItem(
@@ -458,7 +472,45 @@ fun ListaTareas(myViewModel: MyViewModel) {
                                     onClick = {
                                         newTipoTarea = tipo.idTipoTarea
                                         tipoSeleccionado = tipo.tituloTipoTarea
-                                        expandedDesplegable = false
+                                        expandedDesplegableTipo = false
+                                    }
+                                )
+                            }
+                        }
+
+                        // Fila para seleccionar la prioridad de tarea
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            OutlinedTextField(
+                                value = prioridadSeleccionada,
+                                onValueChange = {},
+                                readOnly = true,
+                                label = { Text("Prioridad") },
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .padding(end = 5.dp)
+                            )
+                            TextButton(
+                                onClick = { expandedDesplegablePrio = true }
+                            ) {
+                                Text("Seleccionar prioridad")
+                            }
+                        }
+
+                        // Dropdown para seleccionar la prioridad de tarea
+                        DropdownMenu(
+                            expanded = expandedDesplegablePrio,
+                            onDismissRequest = { expandedDesplegablePrio = false }
+                        ) {
+                            prioridadesList.forEach { prioridad ->
+                                DropdownMenuItem(
+                                    text = { Text(prioridad.tituloPrioridad) },
+                                    onClick = {
+                                        newPrioridadTarea = prioridad.idPrioridad
+                                        prioridadSeleccionada = prioridad.tituloPrioridad
+                                        expandedDesplegablePrio = false
+
+                                        // Actualizar el estado en el ViewModel
+                                        myViewModel.prioridadSeleccionada.value = prioridad
                                     }
                                 )
                             }
@@ -473,7 +525,7 @@ fun ListaTareas(myViewModel: MyViewModel) {
                             tituloTarea = newTareaName,
                             descripcionTarea = newDescription,
                             idTipoTareaOwner = newTipoTarea,
-                            idPrioridadOwner = 1
+                            idPrioridadOwner = newPrioridadTarea
                         )
                         myViewModel.actualizarTarea(tareaActualizada)
                         mostrarDialogoEditar = false
