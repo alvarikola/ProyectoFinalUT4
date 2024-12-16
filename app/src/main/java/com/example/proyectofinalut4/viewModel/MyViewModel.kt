@@ -1,91 +1,88 @@
 package com.example.proyectofinalut4.viewModel
 
-import com.example.proyectofinalut4.data.TareasWithTipo
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.proyectofinalut4.data.Tarea
 import com.example.proyectofinalut4.data.TareaDao
 import com.example.proyectofinalut4.data.TipoTarea
 import com.example.proyectofinalut4.data.TipoTareaDao
+import com.example.proyectofinalut4.data.TareasWithTipo
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class MyViewModel(private val tareaDao: TareaDao, private val tipoTareaDao: TipoTareaDao) : ViewModel() {
 
-    // Estado de la lista de tipos y tareas
-    var tiposList = mutableStateOf(listOf<TipoTarea>())
-    var tareasList = mutableStateOf(listOf<TareasWithTipo>())
+    // Estado observable con StateFlow
+    private val _tiposList = MutableStateFlow<List<TipoTarea>>(emptyList())
+    val tiposList: StateFlow<List<TipoTarea>> get() = _tiposList
 
-    var newTituloTipo = mutableStateOf("")
-    var newTareaName = mutableStateOf("")
-    var newDescription = mutableStateOf("")
-    var tipoSeleccionado = mutableStateOf("-")
-    var expandedDesplegable = mutableStateOf(false)
+    private val _tareasList = MutableStateFlow<List<TareasWithTipo>>(emptyList())
+    val tareasList: StateFlow<List<TareasWithTipo>> get() = _tareasList
+
+    val newTituloTipo = MutableStateFlow("")
+
+    val newTituloTarea = MutableStateFlow("")
+    val newDescription = MutableStateFlow("")
+    val tipoSeleccionado = MutableStateFlow<TipoTarea?>(null)
 
     init {
         obtenerTipos()
         obtenerTareas()
     }
 
-    // Obtener tipos
+    // Obtener la lista de tipos
     private fun obtenerTipos() {
         viewModelScope.launch(Dispatchers.IO) {
-            tiposList.value = tipoTareaDao.getAllTipos()
+            val tipos = tipoTareaDao.getAllTipos()
+            _tiposList.emit(tipos) // Actualizar el flujo con la nueva lista
         }
     }
 
-    // Obtener tareas
+    // Obtener la lista de tareas con sus tipos
     private fun obtenerTareas() {
         viewModelScope.launch(Dispatchers.IO) {
-            tareasList.value = tareaDao.getAllTareasAndTipos()
+            val tareas = tareaDao.getAllTareasAndTipos()
+            _tareasList.emit(tareas) // Actualizar el flujo con la nueva lista
         }
     }
 
-    // Añadir tipo
+    // Añadir un tipo nuevo
     fun agregarTipo() {
-        viewModelScope.launch(Dispatchers.IO) {
-            val tipo = TipoTarea(tituloTipoTarea = newTituloTipo.value)
-            tipoTareaDao.insertTipoTarea(tipo)
-            obtenerTipos() // Actualiza la lista después de añadir
+        val titulo = newTituloTipo.value
+        if (titulo.isNotEmpty()) {
+            viewModelScope.launch(Dispatchers.IO) {
+                // Crear un nuevo tipo
+                val nuevoTipo = TipoTarea(tituloTipoTarea = titulo)
+
+                // Insertar el nuevo tipo en la base de datos
+                tipoTareaDao.insertTipoTarea(nuevoTipo)
+
+                // Limpiar el estado de la entrada del usuario
+                newTituloTipo.value = ""
+
+                // Actualizar la lista de tipos desde la base de datos
+                obtenerTipos()
+            }
         }
     }
 
-    // Añadir tarea
-
-//    fun agregarTarea() {
-//        viewModelScope.launch(Dispatchers.IO) {
-//            val tarea = Tarea(
-//                tituloTarea = newTareaName.value,
-//                descripcionTarea = newDescription.value,
-//                idTipoTareaOwner = tipoSeleccionado.value.toInt()
-//            )
-//            tareaDao.insertTarea(tarea)
-//            obtenerTareas() // Actualiza la lista de tareas
-//        }
-//    }
-
-    // Actualizar tipo
+    // Actualizar un tipo existente
     fun actualizarTipo(tipoTarea: TipoTarea) {
         viewModelScope.launch(Dispatchers.IO) {
             tipoTareaDao.update(tipoTarea)
-            obtenerTipos() // Actualiza la lista de tipos
+            obtenerTipos() // Refrescar la lista
         }
     }
 
-    // Borrar tipo
+    // Borrar un tipo existente
     fun borrarTipo(tipoTarea: TipoTarea) {
         viewModelScope.launch(Dispatchers.IO) {
             tipoTareaDao.delete(tipoTarea)
-            obtenerTipos() // Actualiza la lista de tipos
+            obtenerTipos() // Refrescar la lista
         }
     }
 
-    // Borrar tarea
-//    fun borrarTarea(idTarea: Int) {
-//        viewModelScope.launch(Dispatchers.IO) {
-//            val tarea = Tarea(idTarea = idTarea, tituloTarea = "", descripcionTarea = "", idTipoTareaOwner = 0)
-//            tareaDao.delete(tarea)
-//            obtenerTareas() // Actualiza la lista de tareas
-//        }
-//    }
+
 }
