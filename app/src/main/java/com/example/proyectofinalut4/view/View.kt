@@ -198,12 +198,23 @@ fun FormularioTipos(myViewModel: MyViewModel) {
 
 @Composable
 fun FormularioTareas(myViewModel: MyViewModel) {
+    // Obtener los valores desde el ViewModel
     val newTituloTarea by myViewModel.newTituloTarea.collectAsState()
     val newDescription by myViewModel.newDescription.collectAsState()
     val tipoSeleccionado by myViewModel.tipoSeleccionado.collectAsState()
 
+    // Estados locales para manejar la visibilidad del DropdownMenu
+    var expandedDesplegable by remember { mutableStateOf(false) }
+
+    // Lista de tipos de tarea desde el ViewModel
+    val tiposList by myViewModel.tiposList.collectAsState()
+
+    // Campos para seleccionar el tipo de tarea
+    var tipoSeleccionadoLocal by remember { mutableStateOf("") }
+    var idTipoSeleccionadoLocal by remember { mutableStateOf(0) }
 
     Column(modifier = Modifier.fillMaxWidth()) {
+        // Campo para el título de la tarea
         OutlinedTextField(
             value = newTituloTarea,
             onValueChange = { myViewModel.newTituloTarea.value = it },
@@ -211,6 +222,7 @@ fun FormularioTareas(myViewModel: MyViewModel) {
             modifier = Modifier.fillMaxWidth()
         )
 
+        // Campo para la descripción de la tarea
         OutlinedTextField(
             value = newDescription,
             onValueChange = { myViewModel.newDescription.value = it },
@@ -218,16 +230,60 @@ fun FormularioTareas(myViewModel: MyViewModel) {
             modifier = Modifier.fillMaxWidth()
         )
 
-        Button(
-            onClick = {
-                myViewModel.agregarTarea()
-            },
-            modifier = Modifier.padding(8.dp)
+        // Fila para seleccionar el tipo de tarea
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            OutlinedTextField(
+                value = tipoSeleccionado?.tituloTipoTarea ?: "", // Mostrar una cadena vacía si es nulo
+                onValueChange = {},
+                readOnly = true,
+                label = { Text("Tipo") },
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(end = 5.dp)
+            )
+            TextButton(
+                onClick = { expandedDesplegable = true }
+            ) {
+                Text("Seleccionar tipo")
+            }
+        }
+
+        // Dropdown para seleccionar el tipo de tarea
+        DropdownMenu(
+            expanded = expandedDesplegable,
+            onDismissRequest = { expandedDesplegable = false }
         ) {
-            Text("Añadir tarea")
+            tiposList.forEach { tipo ->
+                DropdownMenuItem(
+                    text = { Text(tipo.tituloTipoTarea) },
+                    onClick = {
+                        tipoSeleccionadoLocal = tipo.tituloTipoTarea
+                        idTipoSeleccionadoLocal = tipo.idTipoTarea
+                        expandedDesplegable = false
+
+                        // Actualizar el estado en el ViewModel
+                        myViewModel.tipoSeleccionado.value = tipo
+                    }
+                )
+            }
         }
     }
+
+    // Botón para añadir tarea
+    Button(
+        onClick = {
+            myViewModel.agregarTarea()  // Llamar al metodo en el ViewModel para agregar tarea
+            // Limpiar los campos después de agregar la tarea
+            myViewModel.newTituloTarea.value = ""
+            myViewModel.newDescription.value = ""
+            myViewModel.tipoSeleccionado.value = null
+        },
+        modifier = Modifier.padding(8.dp)
+    ) {
+        Text("Añadir tarea")
+    }
 }
+
 
 //@Composable
 //fun ListaTareas(viewModel: ViewModel) {
@@ -246,7 +302,7 @@ fun TareaApp(modifier: Modifier = Modifier, myViewModel: MyViewModel) {
         Text("Gestor de tareas")
 
         FormularioTipos(myViewModel)
-//        FormularioTareas(myViewModel)
+        FormularioTareas(myViewModel)
 //        ListaTareas(myViewModel)
     }
 }
