@@ -11,43 +11,41 @@ import com.example.proyectofinalut4.data.TipoTarea
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-
 @Composable
 fun FormularioTipos(myViewModel: MyViewModel) {
-    var newTituloTipo by remember { myViewModel.newTituloTipo }
-
     val scope = rememberCoroutineScope()
 
+    // Estados del ViewModel
+    val newTituloTipo by myViewModel.newTituloTipo.collectAsState()
+    val tiposList by myViewModel.tiposList.collectAsState()
+
+    // Estados locales para los diálogos
     var mostrarDialogoEditar by remember { mutableStateOf(false) }
     var mostrarDialogoBorrar by remember { mutableStateOf(false) }
 
-    var tipoSeleccionado by remember { mutableStateOf("-") }
+    // Estados locales para seleccionar un tipo
+    var tipoSeleccionado by remember { mutableStateOf("") }
+    var idTipoSeleccionado by remember { mutableStateOf(0) }
     var expandedDesplegable by remember { mutableStateOf(false) }
-    var tiposList by remember { myViewModel.tiposList }
-    var newTipoTarea by remember { mutableIntStateOf(0) }
-    var actualizaEstado by remember { mutableStateOf(false) }
-
-
 
     OutlinedTextField(
         value = newTituloTipo,
-        onValueChange = { newTituloTipo = it },
+        onValueChange = { myViewModel.newTituloTipo.value = it },
         label = { Text("Tipo") },
         modifier = Modifier.fillMaxWidth()
     )
+
     Row {
         Button(
             onClick = {
-                scope.launch(Dispatchers.IO) {
-                    TipoTarea(tituloTipoTarea = newTituloTipo)
+                scope.launch {
                     myViewModel.agregarTipo()
-                    newTituloTipo = ""
-                    actualizaEstado = true
                 }
             }
         ) {
             Text(text = "Añadir tipo")
         }
+
         Button(
             onClick = {
                 mostrarDialogoEditar = true
@@ -55,28 +53,31 @@ fun FormularioTipos(myViewModel: MyViewModel) {
         ) {
             Text(text = "Editar tipo")
         }
+
         if (mostrarDialogoEditar) {
             AlertDialog(
                 onDismissRequest = { mostrarDialogoEditar = false },
                 title = { Text(text = "Editar") },
                 text = {
-                    Column (
+                    Column(
                         verticalArrangement = Arrangement.Center,
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         OutlinedTextField(
                             value = newTituloTipo,
-                            onValueChange = { newTituloTipo = it },
-                            label = { Text("Tipo") },
+                            onValueChange = { myViewModel.newTituloTipo.value = it },
+                            label = { Text("Nuevo tipo") },
                             modifier = Modifier.fillMaxWidth()
                         )
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             OutlinedTextField(
                                 value = tipoSeleccionado,
-                                onValueChange = { tipoSeleccionado = it },
+                                onValueChange = { },
                                 readOnly = true,
-                                label = { Text("Tipo") },
-                                modifier = Modifier.weight(1f).padding(end = 5.dp)
+                                label = { Text("Tipo seleccionado") },
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .padding(end = 5.dp)
                             )
                             TextButton(
                                 onClick = { expandedDesplegable = true }
@@ -91,11 +92,9 @@ fun FormularioTipos(myViewModel: MyViewModel) {
                         ) {
                             tiposList.forEach { tipo ->
                                 DropdownMenuItem(
-                                    text = {
-                                        Text(tipo.tituloTipoTarea)
-                                    },
+                                    text = { Text(tipo.tituloTipoTarea) },
                                     onClick = {
-                                        newTipoTarea = tipo.idTipoTarea
+                                        idTipoSeleccionado = tipo.idTipoTarea
                                         tipoSeleccionado = tipo.tituloTipoTarea
                                         expandedDesplegable = false
                                     }
@@ -106,11 +105,11 @@ fun FormularioTipos(myViewModel: MyViewModel) {
                 },
                 confirmButton = {
                     TextButton(onClick = {
-                        scope.launch(Dispatchers.IO) {
-                            val tipoActualizado = TipoTarea(idTipoTarea = newTipoTarea, tituloTipoTarea = newTituloTipo)
-                            myViewModel.actualizarTipo(tipoActualizado)
-                            newTituloTipo = ""
-                            actualizaEstado = true
+                        scope.launch {
+                            myViewModel.actualizarTipo(
+                                TipoTarea(idTipoTarea = idTipoSeleccionado, tituloTipoTarea = newTituloTipo)
+                            )
+                            mostrarDialogoEditar = false
                         }
                     }) {
                         Text("Actualizar")
@@ -123,6 +122,7 @@ fun FormularioTipos(myViewModel: MyViewModel) {
                 }
             )
         }
+
         Button(
             onClick = {
                 mostrarDialogoBorrar = true
@@ -130,22 +130,25 @@ fun FormularioTipos(myViewModel: MyViewModel) {
         ) {
             Text(text = "Borrar tipo")
         }
+
         if (mostrarDialogoBorrar) {
             AlertDialog(
                 onDismissRequest = { mostrarDialogoBorrar = false },
                 title = { Text(text = "Borrar") },
                 text = {
-                    Column (
+                    Column(
                         verticalArrangement = Arrangement.Center,
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             OutlinedTextField(
                                 value = tipoSeleccionado,
-                                onValueChange = { tipoSeleccionado = it },
+                                onValueChange = { },
                                 readOnly = true,
-                                label = { Text("Tipo") },
-                                modifier = Modifier.weight(1f).padding(end = 5.dp)
+                                label = { Text("Tipo seleccionado") },
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .padding(end = 5.dp)
                             )
                             TextButton(
                                 onClick = { expandedDesplegable = true }
@@ -160,11 +163,9 @@ fun FormularioTipos(myViewModel: MyViewModel) {
                         ) {
                             tiposList.forEach { tipo ->
                                 DropdownMenuItem(
-                                    text = {
-                                        Text(tipo.tituloTipoTarea)
-                                    },
+                                    text = { Text(tipo.tituloTipoTarea) },
                                     onClick = {
-                                        newTipoTarea = tipo.idTipoTarea
+                                        idTipoSeleccionado = tipo.idTipoTarea
                                         tipoSeleccionado = tipo.tituloTipoTarea
                                         expandedDesplegable = false
                                     }
@@ -175,10 +176,11 @@ fun FormularioTipos(myViewModel: MyViewModel) {
                 },
                 confirmButton = {
                     TextButton(onClick = {
-                        scope.launch(Dispatchers.IO) {
-                            val tipoBorrar = TipoTarea(idTipoTarea = newTipoTarea, tituloTipoTarea = tipoSeleccionado)
-                            myViewModel.borrarTipo(tipoBorrar)
-                            actualizaEstado = true
+                        scope.launch {
+                            myViewModel.borrarTipo(
+                                TipoTarea(idTipoTarea = idTipoSeleccionado, tituloTipoTarea = tipoSeleccionado)
+                            )
+                            mostrarDialogoBorrar = false
                         }
                     }) {
                         Text("Borrar")
@@ -195,29 +197,30 @@ fun FormularioTipos(myViewModel: MyViewModel) {
 }
 
 //@Composable
-//fun FormularioTareas(viewModel: ViewModel) {
-//    val newTareaName by remember { viewModel.newTareaName }
-//    val newDescription by remember { viewModel.newDescription }
-//    val tipoSeleccionado by remember { viewModel.tipoSeleccionado }
+//fun FormularioTareas(myViewModel: MyViewModel) {
+//    val newTituloTarea by myViewModel.newTituloTarea.collectAsState()
+//    val newDescription by myViewModel.newDescription.collectAsState()
+//    val tipoSeleccionado by myViewModel.tipoSeleccionado.collectAsState()
+//
 //
 //    Column(modifier = Modifier.fillMaxWidth()) {
 //        OutlinedTextField(
-//            value = newTareaName,
-//            onValueChange = { viewModel.newTareaName.value = it },
+//            value = newTituloTarea,
+//            onValueChange = { myViewModel.newTituloTarea.value = it },
 //            label = { Text("Nueva Tarea") },
 //            modifier = Modifier.fillMaxWidth()
 //        )
 //
 //        OutlinedTextField(
 //            value = newDescription,
-//            onValueChange = { viewModel.newDescription.value = it },
+//            onValueChange = { myViewModel.newDescription.value = it },
 //            label = { Text("Descripción") },
 //            modifier = Modifier.fillMaxWidth()
 //        )
 //
 //        Button(
 //            onClick = {
-//                viewModel.agregarTarea()
+//                myViewModel.agregarTarea()
 //            },
 //            modifier = Modifier.padding(8.dp)
 //        ) {
@@ -225,7 +228,7 @@ fun FormularioTipos(myViewModel: MyViewModel) {
 //        }
 //    }
 //}
-//
+
 //@Composable
 //fun ListaTareas(viewModel: ViewModel) {
 //    val tareasList by remember { viewModel.tareasList }
@@ -243,8 +246,8 @@ fun TareaApp(modifier: Modifier = Modifier, myViewModel: MyViewModel) {
         Text("Gestor de tareas")
 
         FormularioTipos(myViewModel)
-//        FormularioTareas(viewModel)
-//        ListaTareas(viewModel)
+//        FormularioTareas(myViewModel)
+//        ListaTareas(myViewModel)
     }
 }
 
