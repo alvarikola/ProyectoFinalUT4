@@ -1,11 +1,19 @@
 package com.example.proyectofinalut4.view
 
+import android.util.Log
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.example.proyectofinalut4.data.Tarea
 import com.example.proyectofinalut4.viewModel.MyViewModel
 import com.example.proyectofinalut4.data.TipoTarea
 import kotlinx.coroutines.Dispatchers
@@ -285,16 +293,163 @@ fun FormularioTareas(myViewModel: MyViewModel) {
 }
 
 
-//@Composable
-//fun ListaTareas(viewModel: ViewModel) {
-//    val tareasList by remember { viewModel.tareasList }
-//
-//    Column(modifier = Modifier.fillMaxWidth()) {
-//        tareasList.forEach { tarea ->
-//            Text("Tarea: ${tarea.tarea.tituloTarea}")
-//        }
-//    }
-//}
+@Composable
+fun ListaTareas(myViewModel: MyViewModel) {
+    // Observamos los flujos del ViewModel
+    val tareasWithTipo by myViewModel.tareasList.collectAsState()
+    val tiposList by myViewModel.tiposList.collectAsState()
+
+    // Estados para gestionar el diálogo y la selección actual
+    var mostrarDialogoEditar by remember { mutableStateOf(false) }
+    var expandedDesplegable by remember { mutableStateOf(false) }
+
+    // Estados para editar la tarea seleccionada
+    var newTareaName by remember { mutableStateOf("") }
+    var newDescription by remember { mutableStateOf<String?>("") }
+    var newTipoTarea by remember { mutableStateOf(0) }
+    var tipoSeleccionado by remember { mutableStateOf("") }
+    var idTareaSeleccionada by remember { mutableStateOf(0) }
+
+    Column(
+        modifier = Modifier
+            .verticalScroll(rememberScrollState())
+            .padding(16.dp)
+    ) {
+        // Mostrar lista de tareas
+        if (!mostrarDialogoEditar) {
+            tareasWithTipo.forEach { tareaWithTipo ->
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(10.dp)
+                        .background(Color(0xFFb7bbff))
+                        .padding(10.dp)
+                ) {
+                    // Información de la tarea
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text("Tarea:", fontSize = 25.sp, fontWeight = FontWeight.Bold)
+                        Text("Tipo: ${tareaWithTipo.tiposTareas.tituloTipoTarea}", fontSize = 20.sp)
+                        Text("${tareaWithTipo.tarea.idTarea} - ${tareaWithTipo.tarea.tituloTarea}", fontSize = 20.sp)
+                        tareaWithTipo.tarea.descripcionTarea?.let {
+                            Text(it, fontSize = 20.sp)
+                        }
+                    }
+
+                    // Botones para editar y borrar
+                    Column(
+                        verticalArrangement = Arrangement.Center,
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Button(
+                            onClick = {
+                                idTareaSeleccionada = tareaWithTipo.tarea.idTarea
+                                newTareaName = tareaWithTipo.tarea.tituloTarea
+                                newDescription = tareaWithTipo.tarea.descripcionTarea
+                                newTipoTarea = tareaWithTipo.tarea.idTipoTareaOwner
+                                tipoSeleccionado = tareaWithTipo.tiposTareas.tituloTipoTarea
+                                mostrarDialogoEditar = true
+                            }
+                        ) {
+                            Text("Editar tarea")
+                        }
+
+                        Button(
+                            onClick = {
+                                myViewModel.borrarTarea(tareaWithTipo.tarea)
+                            }
+                        ) {
+                            Text("Borrar tarea")
+                        }
+                    }
+                }
+            }
+        } else {
+            // Diálogo para editar tarea
+            AlertDialog(
+                onDismissRequest = { mostrarDialogoEditar = false },
+                title = { Text("Editar tarea") },
+                text = {
+                    Column(
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        // Campo para editar el nombre de la tarea
+                        OutlinedTextField(
+                            value = newTareaName,
+                            onValueChange = { newTareaName = it },
+                            label = { Text("Editar Tarea") },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+
+                        // Campo para editar la descripción
+                        OutlinedTextField(
+                            value = newDescription ?: "",
+                            onValueChange = { newDescription = it },
+                            label = { Text("Descripción") },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+
+                        // Selección de tipo
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            OutlinedTextField(
+                                value = tipoSeleccionado,
+                                onValueChange = {},
+                                readOnly = true,
+                                label = { Text("Tipo") },
+                                modifier = Modifier.weight(1f).padding(end = 5.dp)
+                            )
+                            TextButton(onClick = { expandedDesplegable = true }) {
+                                Text("Seleccionar tipo")
+                            }
+                        }
+
+                        // Menú desplegable para seleccionar tipo
+                        DropdownMenu(
+                            expanded = expandedDesplegable,
+                            onDismissRequest = { expandedDesplegable = false }
+                        ) {
+                            tiposList.forEach { tipo ->
+                                DropdownMenuItem(
+                                    text = {
+                                        Text(tipo.tituloTipoTarea)
+                                    },
+                                    onClick = {
+                                        newTipoTarea = tipo.idTipoTarea
+                                        tipoSeleccionado = tipo.tituloTipoTarea
+                                        expandedDesplegable = false
+                                    }
+                                )
+                            }
+                        }
+                    }
+                },
+                confirmButton = {
+                    TextButton(onClick = {
+                        // Usamos el ViewModel para actualizar la tarea
+                        val tareaActualizada = Tarea(
+                            idTarea = idTareaSeleccionada,
+                            tituloTarea = newTareaName,
+                            descripcionTarea = newDescription,
+                            idTipoTareaOwner = newTipoTarea,
+                            idPrioridadOwner = 1
+                        )
+                        myViewModel.actualizarTarea(tareaActualizada)
+                        mostrarDialogoEditar = false
+                    }) {
+                        Text("Actualizar")
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { mostrarDialogoEditar = false }) {
+                        Text("Cancelar")
+                    }
+                }
+            )
+        }
+    }
+}
+
+
 
 @Composable
 fun TareaApp(modifier: Modifier = Modifier, myViewModel: MyViewModel) {
@@ -303,7 +458,7 @@ fun TareaApp(modifier: Modifier = Modifier, myViewModel: MyViewModel) {
 
         FormularioTipos(myViewModel)
         FormularioTareas(myViewModel)
-//        ListaTareas(myViewModel)
+        ListaTareas(myViewModel)
     }
 }
 
