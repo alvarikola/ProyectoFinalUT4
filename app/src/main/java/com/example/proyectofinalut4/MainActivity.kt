@@ -22,13 +22,14 @@ class MainActivity : ComponentActivity() {
         val database = AppDatabase.getDatabase(this)
         val tareaDao = database.tareaDao()
         val tipoTareaDao = database.tipoTareaDao()
+        val prioridadDao = database.prioridadDao()
 
         enableEdgeToEdge()
         setContent {
             ProyectoFinalUT4Theme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
 
-                    val myViewModel: MyViewModel = viewModel(factory = ViewModelFactory(tareaDao, tipoTareaDao))
+                    val myViewModel: MyViewModel = viewModel(factory = ViewModelFactory(tareaDao, tipoTareaDao, prioridadDao))
 
 
                     TareaApp(
