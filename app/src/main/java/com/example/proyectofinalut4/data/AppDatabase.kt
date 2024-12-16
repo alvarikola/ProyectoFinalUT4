@@ -42,7 +42,7 @@ abstract class AppDatabase : RoomDatabase() {
                 Prioridad(tituloPrioridad = "Alta"),
             )
 
-            val prioridadesFromDb = prioridadDao.getAllPrioridades().first()
+            val prioridadesFromDb = prioridadDao.getAllPrioridades()
 
             // Si no existen prioridades en la base de datos las insertamos
             if (prioridadesFromDb.isEmpty()) {
