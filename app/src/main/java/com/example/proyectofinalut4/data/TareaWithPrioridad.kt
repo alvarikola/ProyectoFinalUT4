@@ -9,5 +9,5 @@ data class TareasWithPrioridad(
         parentColumn = "idPrioridadOwner",
         entityColumn = "idPrioridad"
     )
-    val prioridadTareas: List<Prioridad>
+    val prioridadTarea: Prioridad
 )
