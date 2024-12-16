@@ -1,6 +1,8 @@
 package com.example.proyectofinalut4.view
 
+import android.content.pm.PackageManager
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -10,9 +12,14 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.app.NotificationCompat
+import androidx.core.content.ContextCompat
+import com.example.proyectofinalut4.MainActivity
+import com.example.proyectofinalut4.R
 import com.example.proyectofinalut4.data.Tarea
 import com.example.proyectofinalut4.viewModel.MyViewModel
 import com.example.proyectofinalut4.data.TipoTarea
@@ -206,6 +213,9 @@ fun FormularioTipos(myViewModel: MyViewModel) {
 
 @Composable
 fun FormularioTareas(myViewModel: MyViewModel) {
+
+    val context = LocalContext.current
+
     // Obtener los valores desde el ViewModel
     val newTituloTarea by myViewModel.newTituloTarea.collectAsState()
     val newDescription by myViewModel.newDescription.collectAsState()
@@ -331,6 +341,16 @@ fun FormularioTareas(myViewModel: MyViewModel) {
             myViewModel.newDescription.value = ""
             myViewModel.tipoSeleccionado.value = null
             myViewModel.prioridadSeleccionada.value = null
+            // Verificar si se tiene el permiso antes de mostrar la notificación
+            if (ContextCompat.checkSelfPermission(
+                    context,
+                    android.Manifest.permission.POST_NOTIFICATIONS
+                ) == PackageManager.PERMISSION_GRANTED
+            ) {
+                (context as MainActivity).showNotification(context, Tarea(tituloTarea = newTituloTarea, descripcionTarea = newDescription, idTipoTareaOwner = idTipoSeleccionadoLocal, idPrioridadOwner = idPrioridadSeleccionadaLocal))
+            } else {
+                Toast.makeText(context, "Se necesita permiso para notificaciones", Toast.LENGTH_SHORT).show()
+            }
         },
         modifier = Modifier.padding(8.dp)
     ) {
@@ -363,8 +383,6 @@ fun ListaTareas(myViewModel: MyViewModel) {
     var idTareaSeleccionada by remember { mutableStateOf(0) }
 
     var prioridadSeleccionada by remember { mutableStateOf("") }
-    val idPrioridadSeleccionada by remember { mutableStateOf(0) }
-
 
     Column(
         modifier = Modifier
