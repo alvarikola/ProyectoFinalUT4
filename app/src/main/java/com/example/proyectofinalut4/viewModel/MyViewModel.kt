@@ -31,10 +31,12 @@ class MyViewModel(private val tareaDao: TareaDao, private val tipoTareaDao: Tipo
     val newTituloTarea = MutableStateFlow("")
     val newDescription = MutableStateFlow("")
     val tipoSeleccionado = MutableStateFlow<TipoTarea?>(null)
+    val prioridadSeleccionada = MutableStateFlow<Prioridad?>(null)
 
     init {
         obtenerTipos()
         obtenerTareas()
+        obtenerPrioridades()
     }
 
     // Obtener la lista de tipos
@@ -56,7 +58,7 @@ class MyViewModel(private val tareaDao: TareaDao, private val tipoTareaDao: Tipo
     fun obtenerPrioridades() {
         viewModelScope.launch(Dispatchers.IO) {
             val prioridades = prioridadDao.getAllPrioridades()
-            _tareasList.emit(prioridades) // Actualizar el flujo con la nueva lista
+            _prioridadesList.emit(prioridades) // Actualizar el flujo con la nueva lista
         }
     }
 
@@ -102,15 +104,16 @@ class MyViewModel(private val tareaDao: TareaDao, private val tipoTareaDao: Tipo
         val titulo = newTituloTarea.value
         val descripcion = newDescription.value
         val tipoId = tipoSeleccionado.value?.idTipoTarea ?: 0
+        val prioridadId = prioridadSeleccionada.value?.idPrioridad ?: 0
 
-        if (titulo.isNotEmpty() && tipoId != 0) {
+        if (titulo.isNotEmpty()) {
             viewModelScope.launch(Dispatchers.IO) {
                 // Crear la nueva tarea
                 val nuevaTarea = Tarea(
                     tituloTarea = titulo,
                     descripcionTarea = if (descripcion.isEmpty()) null else descripcion,
                     idTipoTareaOwner = tipoId,
-                    idPrioridadOwner = 1 // Aquí asignamos una prioridad, en este caso como ejemplo.
+                    idPrioridadOwner = prioridadId
                 )
 
                 // Insertar la nueva tarea en la base de datos
