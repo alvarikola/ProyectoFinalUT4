@@ -41,6 +41,8 @@
 ## Criterios de evaluación
 ![image](https://github.com/user-attachments/assets/28753c02-9687-43d2-9590-04747a88e41e)
 
+## Descripción de la aplicación
+Es una app que nos permite añadir tareas en nuestra base de datos, estas tareas tienen un título, descripción, tipo y prioridad. Además de añadir podemos editarlas y borrarlas. Por otro lado podemos añadir, editar y borrar tipos para las tareas, estos solo necesitan un título. Una vez que añadimos una tarea nos llega la notificación de que la hemos añadido, además estas tienen iconos y mensajes personalizados dependiendo de la prioridad de estas.
 
 ## Vista App
 ![image](https://github.com/user-attachments/assets/8ce4f348-4918-463a-91ec-f0f3c7b158fe)
