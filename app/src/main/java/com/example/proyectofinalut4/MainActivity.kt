@@ -1,5 +1,6 @@
 package com.example.proyectofinalut4
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -25,6 +26,7 @@ import com.example.proyectofinalut4.view.TareaApp
 import com.example.proyectofinalut4.viewModel.MyViewModel
 import com.example.proyectofinalut4.viewModel.ViewModelFactory
 import androidx.compose.ui.platform.LocalContext
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.example.proyectofinalut4.data.Tarea
 
@@ -135,6 +137,20 @@ class MainActivity : ComponentActivity() {
             .setPriority(PRIORITY_DEFAULT)
 
         with(NotificationManagerCompat.from(context)) {
+            if (ActivityCompat.checkSelfPermission(
+                    context,
+                    Manifest.permission.POST_NOTIFICATIONS
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                // TODO: Consider calling
+                //    ActivityCompat#requestPermissions
+                // here to request the missing permissions, and then overriding
+                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                //                                          int[] grantResults)
+                // to handle the case where the user grants the permission. See the documentation
+                // for ActivityCompat#requestPermissions for more details.
+                return
+            }
             notify(1, builder.build())
         }
     }
